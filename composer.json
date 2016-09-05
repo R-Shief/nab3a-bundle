@@ -1,0 +1,30 @@
+{
+    "name": "r-shief/nab3a-bundle",
+    "description": "Streaming client bundle for kal3a",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Benjamin Doherty",
+            "email": "bjd@bangpound.org"
+        }
+    ],
+    "require": {
+        "clue/json-stream": "^0.1",
+        "guzzlehttp/guzzle": "^6.1",
+        "guzzlehttp/oauth-subscriber": "^0.3",
+        "react/eep": "dev-master",
+        "react/child-process": "^0.4",
+        "react/event-loop": "^0.4",
+        "react/stream": "^0.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "RShief\\Nab3aBundle\\": ""
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
