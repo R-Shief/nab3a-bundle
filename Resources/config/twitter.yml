@@ -1,6 +1,10 @@
 parameters:
     nab3a.twitter.output.pattern: 'data/{user.screen_name}/{created_at.date}/{id}.json'
     nab3a.twitter.batch_output.pattern: 'data/{id}.json'
+    nab3a.twitter.consumer_key: '%twitter_consumer_key%'
+    nab3a.twitter.consumer_secret: '%twitter_consumer_secret%'
+    nab3a.twitter.access_token: '%twitter_access_token%'
+    nab3a.twitter.access_token_secret: '%twitter_access_token_secret%'
 
 services:
     nab3a.twitter.message_emitter:
