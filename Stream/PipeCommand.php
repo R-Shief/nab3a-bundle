@@ -34,16 +34,16 @@ class PipeCommand extends AbstractCommand
         $loop = $this->container->get('nab3a.event_loop');
 
         // @todo
-        //
+
         // we need a timer that keeps track of the time the current connection
         // was started, because we must avoid connection churning.
-        //
+
         // filter parameters will change, we want to signal to the streaming
         // client that there it should reconnect, but if we don't accommodate
         // the fact that multiple changes could happen in a quick sequence, we'd
         // probably get blocked from the streaming API endpoints for too many
         // connection attempts.
-        //
+
         // When this app receives those errors, it manages them correctly,
         // but it still stupidly allows these situations to arise.
         // $timer = $watcher->watch($resource);

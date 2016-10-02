@@ -4,6 +4,9 @@ namespace RShief\Nab3aBundle\Twitter;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Class StreamParameters.
+ */
 class StreamParameters
 {
     /**
@@ -61,7 +64,7 @@ class StreamParameters
     protected $locations;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getLanguage()
     {
