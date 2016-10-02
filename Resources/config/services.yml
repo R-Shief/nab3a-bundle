@@ -4,6 +4,7 @@ imports:
   - { resource: console.yml }
   - { resource: stream.yml }
   - { resource: event_loop.yml }
+  - { resource: rabbitmq.yml }
 
 services:
   nab3a.standalone.parameters:
