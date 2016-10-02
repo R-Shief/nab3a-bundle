@@ -39,6 +39,6 @@ services:
         factory: ['@nab3a.stream.eep', makeStatusAverager ]
 
     nab3a.process.child_process:
-        class: Nab3aBundle\Process\ChildProcess
+        class: RShief\Nab3aBundle\Process\ChildProcess
         arguments:
             - '@nab3a.event_loop'
