@@ -61,10 +61,14 @@ services:
         arguments: [ '@=constant(''GuzzleHttp\\MessageFormatter::CLF'')' ]
         public: false
 
+    nab3a.guzzle.client.handler:
+        class: GuzzleHttp\HandlerStack
+        factory: ['@nab3a.guzzle.client', 'getConfig']
+        arguments: ['handler']
+
     nab3a.guzzle.client:
         class: GuzzleHttp\Client
         public: false
-        abstract: true
         arguments:
             -
                 on_stats: [ '@nab3a.guzzle.emitter', 'onStats' ]
