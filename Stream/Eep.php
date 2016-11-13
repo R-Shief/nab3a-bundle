@@ -37,9 +37,6 @@ class Eep implements Evenement\PluginInterface, EventLoop\PluginInterface
         $loop->addPeriodicTimer(.5, [$this, 'ticker']);
     }
 
-    /**
-     *
-     */
     public function tweetTimer()
     {
         static $time;
@@ -63,9 +60,6 @@ class Eep implements Evenement\PluginInterface, EventLoop\PluginInterface
         $this->container->get('nab3a.stream.eep.status_averager')->enqueue($data);
     }
 
-    /**
-     *
-     */
     public function ticker()
     {
         $this->container->get('nab3a.stream.eep.status_counter')->tick();
