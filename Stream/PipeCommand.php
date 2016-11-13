@@ -50,7 +50,7 @@ class PipeCommand extends AbstractCommand
 
         $process = $this->container
           ->get('nab3a.process.child_process')
-          ->makeChildProcess('stream:read:twitter '.$input->getArgument('name'));
+          ->makeChildProcess('stream:read:twitter '.$input->getArgument('stream'));
 
         $process->stderr->pipe($this->container->get('nab3a.console.logger_helper'));
         $process->stdout->pipe($this->container->get('nab3a.twitter.message_emitter'));

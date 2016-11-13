@@ -2,6 +2,7 @@
 
 namespace RShief\Nab3aBundle\Console;
 
+use GuzzleHttp\Client;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -23,13 +24,18 @@ abstract class AbstractCommand extends Command
 
     protected function configure()
     {
+        $this->addArgument('stream', InputArgument::REQUIRED, 'stream id');
         parent::configure();
-        $this->addArgument('name', InputArgument::OPTIONAL, 'container parameter with filter parameters', 'default');
     }
 
     public function initialize(InputInterface $input, OutputInterface $output)
     {
-        $name = 'nab3a.stream.'.$input->getArgument('name');
-        $this->params = $this->container->getParameter($name);
+        $client = $this->container->get('nab3a.guzzle.client.params');
+        $response = $client->get('stream/'.$input->getArgument('stream'));
+
+        $this->params = [
+          'type' => 'filter',
+          'parameters' => \GuzzleHttp\json_decode($response->getBody(), true),
+        ];
     }
 }
