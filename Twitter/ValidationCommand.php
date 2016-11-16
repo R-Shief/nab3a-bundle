@@ -40,7 +40,7 @@ class ValidationCommand extends AbstractCommand
         }
 
         if ($errors->count() === 0) {
-            $io->success($input->getArgument('name').' is valid');
+            $io->success($input->getArgument('stream').' is valid');
             if ($io->isVerbose()) {
                 $output->writeln(Yaml::dump($this->params));
             }
