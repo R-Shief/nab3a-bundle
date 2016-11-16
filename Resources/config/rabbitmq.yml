@@ -3,7 +3,7 @@ services:
         class: RShief\Nab3aBundle\RabbitMq\EnqueueTweetPlugin
         arguments:
             - '@old_sound_rabbit_mq.twitter_producer'
-            - 'twitter'
+            - ''
             - { content_type: 'application/json' }
         public: false
         tags:
