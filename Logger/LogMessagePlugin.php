@@ -52,7 +52,7 @@ class LogMessagePlugin implements PluginInterface
                     $context = [];
                     break;
                 case 'tweet':
-                    $tweet = \GuzzleHttp\json_decode($data, true);
+                    $tweet = $data;
                     $message = $tweet['text'];
                     $context = [
                         'user' => $tweet['user']['screen_name'],
@@ -64,7 +64,6 @@ class LogMessagePlugin implements PluginInterface
                       ];
                     break;
                 default:
-                    $data = \GuzzleHttp\json_decode($data, true);
                     $message = $event;
                     $context = $data[$event];
                     break;
