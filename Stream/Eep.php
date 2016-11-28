@@ -3,6 +3,8 @@
 namespace RShief\Nab3aBundle\Stream;
 
 use Evenement\EventEmitterInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use RShief\Nab3aBundle\Evenement;
 use RShief\Nab3aBundle\EventLoop;
 use Psr\Log\LoggerAwareTrait;
@@ -14,9 +16,15 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Class Eep.
+ *
+ * @property LoggerInterface logger
  */
-class Eep implements Evenement\PluginInterface, EventLoop\PluginInterface
+class Eep implements Evenement\PluginInterface, EventLoop\PluginInterface, LoggerAwareInterface
 {
+    const MINUTE_MS = 60e3;
+    const SECOND_MS = 1e3;
+    const HOUR_MS = 3600e3;
+
     use LoggerAwareTrait;
     use ContainerAwareTrait;
 
@@ -74,7 +82,7 @@ class Eep implements Evenement\PluginInterface, EventLoop\PluginInterface
     {
         $emitter = new Window\Periodic(new Composite([
           new Stats\Max(), new Stats\Mean(), new Stats\Min(), new Stats\Sum(),
-        ]), 6e4);
+        ]), self::MINUTE_MS);
         $emitter->on('emit', function ($emit) {
             $context = array_combine(['max', 'mean', 'min', 'total'], array_map(function ($num) {
                 return round($num, 4);
@@ -90,9 +98,9 @@ class Eep implements Evenement\PluginInterface, EventLoop\PluginInterface
      */
     public function makeStatusCounter()
     {
-        $emitter = new Window\Periodic(new Stats\Count(), 6e4);
+        $emitter = new Window\Periodic(new Stats\Count(), self::MINUTE_MS);
         $emitter->on('emit', function ($emit) {
-            $this->logger->info('statusCount '.$emit.' in one minute');
+            $this->logger->info(sprintf('statusCount %s in %s seconds', $emit, self::MINUTE_MS / 1000));
         });
 
         return $emitter;
@@ -103,12 +111,12 @@ class Eep implements Evenement\PluginInterface, EventLoop\PluginInterface
      */
     public function makeStatusAverager()
     {
-        $avg_tw = new Window\Tumbling(new Stats\Mean(), 60);
+        $avg_tw = new Window\Tumbling(new Stats\Mean(), self::MINUTE_MS / self::SECOND_MS);
         $avg_tw->on('emit', function ($emit) {
-            $this->logger->info('statusAverage '.$emit.' per second');
+            $this->logger->info(sprintf('statusAverage %s in %s seconds', $emit, self::SECOND_MS / 1000));
         });
 
-        $emitter = new Window\Periodic(new Stats\Count(), 1e3);
+        $emitter = new Window\Periodic(new Stats\Count(), self::SECOND_MS);
         $emitter->on('emit', function ($emit) use ($avg_tw) {
             $avg_tw->enqueue($emit);
         });

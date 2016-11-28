@@ -3,7 +3,7 @@ services:
         class: Monolog\Processor\MemoryUsageProcessor
         arguments: [ true, false ]
         tags:
-            - { name: monolog.processor }
+            - { name: monolog.processor, handler: console }
 
     nab3a.logger.formatter.json:
         parent: monolog.formatter.loggly
@@ -11,7 +11,7 @@ services:
         public: true
 
     nab3a.logger.handler:
-        class: '%monolog.handler.console.class%'
+        class: Symfony\Bridge\Monolog\Handler\ConsoleHandler
         calls:
             - [ setFormatter, [ '@=service(''nab3a.console.input'').hasParameterOption(''--child'') ? service(''nab3a.logger.formatter.json'') : service(''nab3a.logger.formatter.console'')'] ]
         tags:
