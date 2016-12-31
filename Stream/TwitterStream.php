@@ -11,17 +11,18 @@ class TwitterStream
      * Read one entry from a length delimited stream.
      *
      * @param StreamInterface $stream
-     * @param null            $maxLength
+     * @param null $maxLength
      *
      * @return string
+     * @throws \RuntimeException
      */
     public static function handleData(StreamInterface $stream, $maxLength = null)
     {
         do {
             $data = Psr7\readline($stream, $maxLength);
-        } while (strlen($data) < 1);
+        } while ($data === '');
 
-        $length = intval(trim($data));
+        $length = (int) trim($data);
 
         if ($length) {
             $data = $stream->read($length);
