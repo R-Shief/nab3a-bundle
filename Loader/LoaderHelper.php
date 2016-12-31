@@ -4,11 +4,21 @@ namespace RShief\Nab3aBundle\Loader;
 
 class LoaderHelper
 {
+    /**
+     * @param $array
+     * @return string
+     */
     public static function makeQueryParam($array)
     {
         return implode(',', (array) $array);
     }
 
+    /**
+     * @param $track
+     * @param $follow
+     * @param $location
+     * @return array
+     */
     public static function makeQueryParams($track, $follow, $location)
     {
         $params = [];

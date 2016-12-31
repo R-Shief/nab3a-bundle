@@ -6,9 +6,12 @@ use React\ChildProcess\Process;
 use RShief\Nab3aBundle\Console\AbstractCommand;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleEvent;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 class PipeCommand extends AbstractCommand
 {
@@ -24,10 +27,14 @@ class PipeCommand extends AbstractCommand
     }
 
     /**
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      *
      * @return int|null|void
+     * @throws InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -62,13 +69,17 @@ class PipeCommand extends AbstractCommand
 
     /**
      * @param Process $process
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function attachListeners(Process $process)
     {
         $dispatcher = $this->container->get('event_dispatcher');
         $listener = function (ConsoleEvent $event) use ($process) {
-            $process->terminate();
-            usleep(self::CHILD_PROC_TIMER * 1e6);
+            if ($process->isRunning()) {
+                $process->terminate();
+                usleep(self::CHILD_PROC_TIMER * 1e6);
+            }
         };
         $dispatcher->addListener(ConsoleEvents::EXCEPTION, $listener);
         $dispatcher->addListener(ConsoleEvents::TERMINATE, $listener);
