@@ -52,4 +52,10 @@ services:
                 token:           '%nab3a.twitter.access_token%'
                 token_secret:    '%nab3a.twitter.access_token_secret%'
         tags:
-            - { name: guzzle.middleware, id: nab3a.twitter.guzzle.client }
+            - { name: guzzle.middleware, client: nab3a.twitter.guzzle.client, middleware_name: oauth }
+
+    nab3a.twitter.guzzle.middleware.retry:
+        parent: nab3a.guzzle.middleware.retry
+        tags:
+            - { name: guzzle.middleware, client: nab3a.twitter.guzzle.client, middleware_name: retry }
+

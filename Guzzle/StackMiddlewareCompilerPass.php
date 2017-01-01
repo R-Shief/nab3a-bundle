@@ -21,12 +21,13 @@ class StackMiddlewareCompilerPass implements CompilerPassInterface
         $stacks = [];
         foreach ($serviceIds as $serviceId => $tags) {
             foreach ($tags as $tag) {
-                $clientId = $tag['id'];
-                $stacks[$clientId][] = $serviceId;
+                $clientId = $tag['client'];
+                unset($tag['client']);
+                $stacks[$clientId][] = array_merge(['method' => 'push'], $tag, ['service' => $serviceId]);
             }
         }
 
-        foreach ($stacks as $clientId => $middlewareIds) {
+        foreach ($stacks as $clientId => $middlewares) {
             $clientDefinition = $container->getDefinition($clientId);
             $arguments = $clientDefinition->getArguments();
 
@@ -34,8 +35,22 @@ class StackMiddlewareCompilerPass implements CompilerPassInterface
 
             $stackDefinition = new DefinitionDecorator('nab3a.guzzle.handler_stack');
             $stackDefinition->setArguments([$handlerDefinition]);
-            foreach ($middlewareIds as $name => $middlewareId) {
-                $stackDefinition->addMethodCall('push', [new Reference($middlewareId), $middlewareId]);
+            $earlyMiddleware = array_filter($middlewares, function ($middleware) {
+                return !array_key_exists('before', $middleware) && !array_key_exists('after', $middleware);
+            });
+            $lateMiddleware = array_diff_key($middlewares, $earlyMiddleware);
+            foreach ($earlyMiddleware + $lateMiddleware as $middleware) {
+                $method = $middleware['method'];
+                $stackArguments = [
+                  new Reference($middleware['service']),
+                  $middleware['middleware_name']
+                ];
+                if (isset($middleware['before']) || isset($middleware['after'])) {
+                    $method = isset($middleware['before']) ? 'before' : 'after';
+                    array_unshift($stackArguments, $middleware[$method]);
+                }
+
+                $stackDefinition->addMethodCall($method, $stackArguments);
             }
 
             $arguments[0]['handler'] = $stackDefinition;

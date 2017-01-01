@@ -2,16 +2,14 @@
 
 namespace RShief\Nab3aBundle\Guzzle;
 
-use GuzzleHttp\Exception;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7;
 use Psr\Http\Message\RequestInterface;
-use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\VarDumper\VarDumper;
 
 class RetryMiddleware
 {
-    use LoggerAwareTrait;
-
     /**
      * @var callable
      */
@@ -43,30 +41,30 @@ class RetryMiddleware
     private static function retryMiddlewares()
     {
         return array(
+          [Middleware::retry(self::connectExceptionDecider(), self::linearDelay(250, 16000)), 'connect_error'],
           [Middleware::retry(self::httpErrorDecider(), self::exponentialDelay(5000, 320000)), 'http_error'],
           [Middleware::retry(self::rateLimitErrorDecider(), self::exponentialDelay(60000)), 'rate_limit'],
-          [Middleware::retry(self::connectExceptionDecider(), self::linearDelay(250, 16000)), 'connect_error'],
         );
     }
 
     public static function connectExceptionDecider()
     {
-        return function ($retries, Psr7\Request $request, Psr7\Response $response = null, Exception\RequestException $exception = null) {
-            return $exception instanceof Exception\ConnectException;
+        return function ($retries, Psr7\Request $request, Psr7\Response $response = null, $error = null) {
+            return ! (bool) $response || $error instanceof ConnectException;
         };
     }
 
     public static function rateLimitErrorDecider()
     {
-        return function ($retries, Psr7\Request $request, Psr7\Response $response = null, Exception\RequestException $exception = null) {
-            return $exception instanceof Exception\ClientException && $exception->hasResponse() && $exception->getResponse()->getStatusCode() === 420;
+        return function ($retries, Psr7\Request $request, Psr7\Response $response = null, $error = null) {
+            return $response && $response->getStatusCode() === 420;
         };
     }
 
     public static function httpErrorDecider()
     {
-        return function ($retries, Psr7\Request $request, Psr7\Response $response = null, Exception\RequestException $exception = null) {
-            return $exception instanceof Exception\BadResponseException;
+        return function ($retries, Psr7\Request $request, Psr7\Response $response = null, $error = null) {
+            return $response && $response->getStatusCode() >= 400;
         };
     }
 
