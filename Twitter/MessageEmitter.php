@@ -41,9 +41,9 @@ class MessageEmitter extends WritableStream
             return;
         }
 
-        foreach ($this->parser->push($data) as $data) {
-            $event = $this->guesser->getEventName($data);
-            $this->emit($event, [$data]);
+        foreach ($this->parser->push($data) as $object) {
+            $event = $this->guesser->getEventName($object);
+            $this->emit($event, [$object]);
         }
     }
 }
