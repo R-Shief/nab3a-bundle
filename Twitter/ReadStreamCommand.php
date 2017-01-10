@@ -31,5 +31,7 @@ class ReadStreamCommand extends AbstractCommand
             $data = TwitterStream::handleData($stream);
             $output->write($data, false, OutputInterface::OUTPUT_RAW);
         }
+
+        return 1;
     }
 }
