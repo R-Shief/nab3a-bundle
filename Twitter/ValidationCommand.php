@@ -2,6 +2,7 @@
 
 namespace RShief\Nab3aBundle\Twitter;
 
+use AppBundle\Entity\StreamParameters;
 use RShief\Nab3aBundle\Console\AbstractCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
