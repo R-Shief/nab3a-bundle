@@ -55,9 +55,13 @@ class PipeCommand extends AbstractCommand
         // but it still stupidly allows these situations to arise.
         // $timer = $watcher->watch($resource);
 
+        $stringOption = implode(' ', array_map(function ($option) {
+            return '--stream '. $option;
+        }, $input->getOption('stream')));
+
         $process = $this->container
           ->get('nab3a.process.child_process')
-          ->makeChildProcess('stream:read:twitter '.$input->getArgument('stream'));
+          ->makeChildProcess('stream:read:twitter '.$stringOption);
 
         $this->attachListeners($process);
 

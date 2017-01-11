@@ -2,11 +2,12 @@
 
 namespace RShief\Nab3aBundle\Console;
 
-use GuzzleHttp\Client;
+use AppBundle\Entity\StreamParameters;
+use AppBundle\MergeStreamParameters;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -24,18 +25,31 @@ abstract class AbstractCommand extends Command
 
     protected function configure()
     {
-        $this->addArgument('stream', InputArgument::REQUIRED, 'stream id');
+        $this->addOption('stream', 's', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'stream id', ['enabled']);
         parent::configure();
     }
 
     public function initialize(InputInterface $input, OutputInterface $output)
     {
         $client = $this->container->get('nab3a.guzzle.client.params');
-        $response = $client->get('stream/'.$input->getArgument('stream'));
+        $serializer = $this->container->get('serializer');
+        $merger = new MergeStreamParameters();
+        $params = new StreamParameters();
+        foreach ($input->getOption('stream') as $stream) {
+            if (ctype_digit($stream)) {
+                $response = $client->get('stream/'.$stream);
+                $streamParameter = $serializer->deserialize($response->getBody(), StreamParameters::class, 'json');
+                $params = $merger->merge([$streamParameter, $params]);
+            } elseif ($stream === 'enabled') {
+                $response = $client->get('stream', ['query' => ['enabled' => 1]]);
+                $streamParameter = $serializer->deserialize($response->getBody(), StreamParameters::class .'[]', 'json');
+                $params = $merger->merge($streamParameter);
+            }
+        }
 
         $this->params = [
           'type' => 'filter',
-          'parameters' => \GuzzleHttp\json_decode($response->getBody(), true),
+          'parameters' => $serializer->normalize($params, 'json'),
         ];
     }
 }
